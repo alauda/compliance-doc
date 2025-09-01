@@ -2,35 +2,89 @@
 weight: 15
 ---
 
-:::tip
-
-If this module requires a separate installation process, you should provide installation documentation. Otherwise, this section can be omitted.
-
-Installation documentation should cover the installation process, configuration options, and uninstallation procedures. If the content is extensive, consider organizing it as a directory with multiple documents covering different aspects.
-
-For reference, you can view an [installation example](https://product-doc-guide.alauda.cn/template/installation/example.html).
-
-:::
-
 # Install
 
-## Installing XXX
+## Installing Compliance Service
 
-Describe the prerequisites needed for installing this component.
+### Download and Import the Plugin
 
-### Installing XXX in web console
+1、Download the plugin package:
 
-Outline the process for installing the component through the web console interface.
+- Visit the Custom Portal to download the corresponding plugin package.
+-If you don't have access to the Custom Portal, contact technical support.
 
-### Installing XXX using CLI
+2、Import the plugin:
 
-Explain the steps for installing the component using the command line interface.
+```bash
+violet push compliance-service-vx.x.x-hybrid.tgz --platform-address https://192.168.0.1 --platform-username <user> --platform-password <password>
+```
 
-## Uninstalling XXX
+### Installing Compliance Service in web console
 
-Detail the uninstallation process. Typically, this involves first removing component instances, then deleting the Operator, and finally removing the associated CRDs.
+1、Verify the upload:
 
-## Custom Configuration
+- Navigate to Administrator > Marketplace > Upload Packages
+- Switch to the Cluster Plugin tab
+- Locate the uploaded plugin name
+- The plugin details will show the version(s) of the uploaded package
 
-Describe the configuration options that can be customized during the installation process.
+2、Install the plugin:
 
+- If the plugin shows a "ready" status, click Install
+- Some plugins require installation parameters; refer to the plugin-specific documentation
+- Plugins without installation parameters will start installation immediately after clicking Install
+
+### Installing Compliance service using CLI
+
+1. Check available versions
+
+Ensure the plugin has been published by checking for ModulePlugin and ModuleConfig resources, in `global` cluster :
+
+```shell
+# kubectl get moduleplugins |grep compliance
+NAME      AGE
+compliance-operator            5d17h
+
+# kubectl get moduleconfigs -l cpaas.io/module-name=compliance-operator
+NAME                                                   AGE
+compliance-operator-v1.0.2   3d22h
+```
+
+This indicates that the ModulePlugin `compliance-operator ` exists in the cluster and version `v1.0.2` is published.
+
+2. Create a ModuleInfo
+
+Create a ModuleInfo resource to install the plugin without any configuration parameters:
+
+```yaml
+apiVersion: cluster.alauda.io/v1alpha1
+kind: ModuleInfo
+metadata:
+  annotations:
+    cpaas.io/display-name: compliance-operator
+    cpaas.io/module-name: '{"en": "Alauda Container Platform Compliance Operator",
+      "zh": "Alauda Container Platform Compliance Operator"}'
+  labels:
+    cpaas.io/cluster-name: global               
+    cpaas.io/module-name: compliance-operator
+    cpaas.io/module-type: plugin
+    cpaas.io/product: Platform-Center
+  name: compliance-global                    
+spec:
+  config:
+    reportStorage:
+      size: 1Gi                                
+      storageClass: compliance-st               
+  version: v0.0.0-beta.6.gd6558326             					
+```
+
+Field explanations:
+
+* `name`: Temporary name for the cluster plugin. The platform will rename it after creation based on the content, in the format `<cluster-name>-<hash of content>`, e.g., `global-ee98c9991ea1464aaa8054bdacbab313`.
+* `label cpaas.io/cluster-name`: Specifies the cluster where the plugin should be installed. 
+* `label cpaas.io/module-name`: Plugin name, must match the ModulePlugin resource.
+* `label cpaas.io/module-type`: Fixed field, must be `plugin`; missing this field causes installation failure.
+* `.spec.config`: If the corresponding ModuleConfig is empty, this field can be left empty.
+* `.spec.version`: Specifies the plugin version to install, must match `.spec.version` in ModuleConfig.
+* `.spec.config.reportStorage.size`: Specifies the storage size for the report storage.
+* `.spec.config.reportStorage.storageClass`: Specifies the storage class for the report storage.
