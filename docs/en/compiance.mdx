@@ -1,0 +1,190 @@
+---
+weight: 20
+---
+
+# Compliance Service
+
+## Overview
+
+Compliance Service provides comprehensive security compliance scanning capabilities for Kubernetes clusters and MicroOS systems. This guide demonstrates how to create scan profiles, monitor scan results, and export compliance reports.
+
+## Creating Scan Profiles
+
+Scan profiles define the scope and configuration of compliance scanning operations. The Compliance Service supports both STIG (Security Technical Implementation Guide) profiles for Kubernetes and MicroOS environments.
+
+### STIG Kubernetes Profiles
+
+The following examples demonstrate how to create STIG compliance scan profiles for different Kubernetes components:
+
+#### API Server Scan Profile
+
+```yaml
+apiVersion: compliance-operator.alauda.io/v1alpha1
+kind: Scan
+metadata:
+  name: scan-stig-k8s-v2r2-api-server
+  namespace: compliance-system
+  annotations:
+    compliance-operator.alauda.io/force-scan: "true"
+    compliance-operator.alauda.io/job-mode: "aggregated"
+spec:
+  nodeScopeStrategy: auto
+  scanType: node
+  targetNodeRoles:
+    - control-plane
+    - worker
+  profile: stig-k8s-v2r2-api-server
+  nodeSelector: {}
+  maxHistoricalResults: 3
+  schedule: "0 2 * * *"
+```
+
+#### Control Plane Scan Profile
+
+```yaml
+apiVersion: compliance-operator.alauda.io/v1alpha1
+kind: Scan
+metadata:
+  name: scan-stig-k8s-v2r2-control-plane
+  namespace: compliance-system
+spec:
+  profile: stig-k8s-v2r2-control-plane
+  nodeScopeStrategy: auto
+  scanType: node
+  targetNodeRoles:
+    - control-plane
+    - worker
+```
+
+#### General Kubernetes Scan Profile
+
+```yaml
+apiVersion: compliance-operator.alauda.io/v1alpha1
+kind: Scan
+metadata:
+  name: scan-stig-k8s-v2r2-general
+  namespace: compliance-system
+spec:
+  nodeScopeStrategy: auto
+  scanType: node
+  targetNodeRoles:
+    - control-plane
+    - worker
+  profile: stig-k8s-v2r2-general
+```
+
+#### Kubelet Scan Profile
+
+```yaml
+apiVersion: compliance-operator.alauda.io/v1alpha1
+kind: Scan
+metadata:
+  name: scan-stig-k8s-v2r2-kubelet
+  namespace: compliance-system
+spec:
+  nodeScopeStrategy: auto
+  scanType: node
+  targetNodeRoles:
+    - control-plane
+    - worker
+  profile: stig-k8s-v2r2-kubelet
+```
+
+### MicroOS Scan Profile
+
+For MicroOS operating system compliance scanning:
+
+```yaml
+apiVersion: compliance-operator.alauda.io/v1alpha1
+kind: Scan
+metadata:
+  name: scan-stig-os-micoos
+  namespace: compliance-system
+spec:
+  profile: stig-os-micoos
+  scanType: node
+```
+
+## Scan Configuration Parameters
+
+The following table describes the key configuration parameters available for scan profiles:
+
+| Parameter | Type | Scope | Description |
+|-----------|------|-------|-------------|
+| `spec.nodeScopeStrategy` | string | k8s, os | Scanning node selection mode. Supports `auto` and `manual` modes. In auto mode, nodes are selected based on rule-specific scope definitions. In manual mode, all rules are executed on specified nodes. |
+| `spec.targetNodeRoles` | array | k8s, os | Optional. Restricts node roles. Valid values include `control-plane` and `worker`. When configured, participates in node filtering and intersects with nodeScopeStrategy mode. |
+| `spec.nodeSelector` | object | k8s, os | Optional. Uses node labels for selection. When configured, participates in node filtering and intersects with nodeScopeStrategy mode. |
+| `spec.schedule` | string | k8s, os | Optional. Configures scheduled tasks using cron syntax. Example: `"0 2 * * *"` for daily execution at 2 AM. |
+| `spec.maxHistoricalResults` | int | k8s, os | Optional. Number of historical results to retain (default: 5). Example: `2` to keep only the latest 2 results. |
+
+## Scan Annotations
+
+The following annotations can be used to control scan behavior:
+
+| Annotation | Scope | Description |
+|------------|-------|-------------|
+| `compliance-operator.alauda.io/force-scan: "true"` | k8s, os | Manually triggers immediate scan execution. Automatically resets to false after scan completion. |
+| `compliance-operator.alauda.io/job-mode: "aggregated"` | k8s | Enables aggregated scanning mode. All rules defined in the Profile are executed in a single Scan Job, with nodes scanned sequentially. This mode is only effective for Kubernetes scans. |
+
+## Monitoring Scan Results
+
+To check the status and results of your compliance scans:
+
+```bash
+# Check scan status and results
+kubectl get scan <scan-name> -n compliance-system -o jsonpath='{.status.phase}{"\t"}{.status.result}'
+```
+
+Example output:
+```
+Done NON-COMPLIANT
+```
+
+## Exporting Compliance Reports
+
+Compliance Service generates detailed HTML reports that can be exported for analysis and compliance documentation.
+
+### Export Current Scan Reports
+
+#### STIG Report Export
+
+```bash
+# View all scans
+kubectl get scan -A
+
+# Export STIG report
+SCAN_NAME="<scan-name>" && \
+kubectl get cm $(kubectl get scan $SCAN_NAME -n compliance-system -o jsonpath='{.status.latestResult.reportName}') -n compliance-system -o jsonpath='{.data.report\.html}' > report-$SCAN_NAME.html
+```
+
+#### MicroOS Report Export
+
+```bash
+# Export MicroOS report
+SCAN_NAME="scan-stig-os-micoos" && \
+kubectl get scan $SCAN_NAME -n compliance-system -o jsonpath='{.status.latestResult.scanID}' | \
+xargs -I {} kubectl cp compliance-system/$(kubectl get pods -n compliance-system -l app=openscap-report-service -o jsonpath='{.items[0].metadata.name}'):/reports/{} ./reports-{}
+```
+
+### Export Historical Reports
+
+To access historical scan results and reports:
+
+```bash
+# View all check results
+kubectl get checkresult -A
+
+# Export historical STIG report
+CHECKRESULT_NAME="<checkresult-name>" && kubectl get cm -n compliance-system -l "compliance-operator.alauda.io/scan-id=$(kubectl get checkresult $CHECKRESULT_NAME -n compliance-system -o jsonpath='{.metadata.labels.compliance-operator\.alauda\.io/scan-id}'),compliance-operator.alauda.io/resource-type=report" -o jsonpath='{.items[0].data.report\.html}' > report-$CHECKRESULT_NAME.html
+
+# Export historical MicroOS report
+CHECKRESULT_NAME="<checkresult-name>" && kubectl cp compliance-system/$(kubectl get pods -n compliance-system -l app=openscap-report-service -o jsonpath='{.items[0].metadata.name}'):/reports/$(kubectl get checkresult $CHECKRESULT_NAME -n compliance-system -o jsonpath='{.metadata.labels.compliance-operator\.alauda\.io/scan-id}') ./reports-$(kubectl get checkresult $CHECKRESULT_NAME -n compliance-system -o jsonpath='{.metadata.labels.compliance-operator\.alauda\.io/scan-id}')
+```
+
+## Best Practices
+
+1. **Scheduled Scanning**: Use the `schedule` parameter to automate regular compliance checks
+2. **Resource Management**: Configure `maxHistoricalResults` to manage storage usage
+3. **Node Targeting**: Use `targetNodeRoles` and `nodeSelector` to focus scans on specific infrastructure components
+4. **Aggregated Mode**: Use aggregated job mode for large clusters to reduce Kubernetes API overhead
+5. **Report Retention**: Regularly export and archive compliance reports for audit purposes
