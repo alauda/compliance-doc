@@ -98,10 +98,10 @@ For MicroOS operating system compliance scanning:
 apiVersion: compliance-operator.alauda.io/v1alpha1
 kind: Scan
 metadata:
-  name: scan-stig-os-micoos
+  name: scan-stig-os-microos
   namespace: compliance-system
 spec:
-  profile: stig-os-micoos
+  profile: stig-os-microos
   scanType: node
 ```
 
@@ -111,7 +111,7 @@ The following table describes the key configuration parameters available for sca
 
 | Parameter | Type | Scope | Description |
 |-----------|------|-------|-------------|
-| `spec.nodeScopeStrategy` | string | k8s, os | Scanning node selection mode. Supports `auto` and `manual` modes. In auto mode, nodes are selected based on rule-specific scope definitions. In manual mode, all rules are executed on specified nodes. |
+| `spec.nodeScopeStrategy` | string | k8s | Scanning node selection mode. Supports `auto` and `manual` modes. In auto mode, nodes are selected based on rule-specific scope definitions. In manual mode, all rules are executed on specified nodes. |
 | `spec.targetNodeRoles` | array | k8s, os | Optional. Restricts node roles. Valid values include `control-plane` and `worker`. When configured, participates in node filtering and intersects with nodeScopeStrategy mode. |
 | `spec.nodeSelector` | object | k8s, os | Optional. Uses node labels for selection. When configured, participates in node filtering and intersects with nodeScopeStrategy mode. |
 | `spec.schedule` | string | k8s, os | Optional. Configures scheduled tasks using cron syntax. Example: `"0 2 * * *"` for daily execution at 2 AM. |
@@ -161,7 +161,7 @@ kubectl get cm $(kubectl get scan $SCAN_NAME -n compliance-system -o jsonpath='{
 
 ```bash
 # Export MicroOS report
-SCAN_NAME="scan-stig-os-micoos" && \
+SCAN_NAME="scan-stig-os-microos" && \
 kubectl get scan $SCAN_NAME -n compliance-system -o jsonpath='{.status.latestResult.scanID}' | \
 xargs -I {} kubectl cp compliance-system/$(kubectl get pods -n compliance-system -l app=openscap-report-service -o jsonpath='{.items[0].metadata.name}'):/reports/{} ./reports-{}
 ```
