@@ -66,7 +66,7 @@ metadata:
   namespace: compliance-system
 spec:
   nodeScopeStrategy: auto
-  scanType: node
+  scanType: all
   targetNodeRoles:
     - control-plane
     - worker
@@ -111,6 +111,7 @@ The following table describes the key configuration parameters available for sca
 
 | Parameter | Type | Scope | Description |
 |-----------|------|-------|-------------|
+| `spec.scanType` | string | k8s,os | Supports `platform`,`node` and `all`. In platform mode, system will only scan kubernetes resource; In node mode, system will only scan node files.|
 | `spec.nodeScopeStrategy` | string | k8s | Scanning node selection mode. Supports `auto` and `manual` modes. In auto mode, nodes are selected based on rule-specific scope definitions. In manual mode, all rules are executed on specified nodes. |
 | `spec.targetNodeRoles` | array | k8s, os | Optional. Restricts node roles. Valid values include `control-plane` and `worker`. When configured, participates in node filtering and intersects with nodeScopeStrategy mode. |
 | `spec.nodeSelector` | object | k8s, os | Optional. Uses node labels for selection. When configured, participates in node filtering and intersects with nodeScopeStrategy mode. |
