@@ -11,12 +11,15 @@ weight: 15
 1、Download the plugin package:
 
 - Visit the Custom Portal to download the corresponding plugin package.
--If you don't have access to the Custom Portal, contact technical support.
+- If you don't have access to the Custom Portal, contact technical support.
 
-2、Import the plugin:
+2、Import the plugin using violet:
 
 ```bash
-violet push compliance-service-vx.x.x-hybrid.tgz --platform-address https://192.168.0.1 --platform-username <user> --platform-password <password>
+violet push compliance-operator.amd64.v1.1.0.tgz \
+  --platform-address https://<platform-address>/ \
+  --platform-username <username> \
+  --platform-password '<password>'
 ```
 
 ### Installing Compliance Service in web console
@@ -37,7 +40,7 @@ violet push compliance-service-vx.x.x-hybrid.tgz --platform-address https://192.
 
 1. Check available versions
 
-Ensure the plugin has been published by checking for ModulePlugin and ModuleConfig resources, in `global` cluster :
+Ensure the plugin has been published by checking for ModulePlugin and ModuleConfig resources in the `global` cluster:
 
 ```shell
 # kubectl get moduleplugins |grep compliance
@@ -49,7 +52,7 @@ NAME                                                   AGE
 compliance-operator-v1.0.2   3d22h
 ```
 
-This indicates that the ModulePlugin `compliance-operator ` exists in the cluster and version `v1.0.2` is published.
+This indicates that the ModulePlugin `compliance-operator` exists in the cluster and version `v1.0.2` is published.
 
 2. Create a ModuleInfo
 
@@ -79,7 +82,7 @@ spec:
 
 Field explanations:
 
-* `name`: Temporary name for the cluster plugin. The platform will rename it after creation based on the content, in the format `<cluster-name>-<hash of content>`, e.g., `global-ee98c9991ea1464aaa8054bdacbab313`.
+* `name`: Temporary name for the cluster plugin. The platform will rename it after creation based on the content, in the format `<cluster-name>-<hash of content>`, for example `global-ee98c9991ea1464aaa8054bdacbab313`.
 * `label cpaas.io/cluster-name`: Specifies the cluster where the plugin should be installed. 
 * `label cpaas.io/module-name`: Plugin name, must match the ModulePlugin resource.
 * `label cpaas.io/module-type`: Fixed field, must be `plugin`; missing this field causes installation failure.
@@ -87,3 +90,31 @@ Field explanations:
 * `.spec.version`: Specifies the plugin version to install, must match `.spec.version` in ModuleConfig.
 * `.spec.config.reportStorage.size`: Specifies the storage size for the report storage.
 * `.spec.config.reportStorage.storageClass`: Specifies the storage class for the report storage.
+
+### Installing with YAML
+
+You can also install the plugin by creating a ModuleInfo resource in the Alauda Container Platform global cluster:
+
+```yaml
+apiVersion: cluster.alauda.io/v1alpha1
+kind: ModuleInfo
+metadata:
+  annotations:
+    cpaas.io/display-name: compliance-operator
+    cpaas.io/module-name: '{"en": "Alauda Container Platform Compliance Service", "zh": "Alauda Container Platform Compliance Service"}'
+  labels:
+    cpaas.io/cluster-name: <cluster-name>  # target cluster name
+    cpaas.io/module-name: compliance-operator
+    cpaas.io/module-type: plugin
+    cpaas.io/product: Platform-Center
+  name: compliance-operator-<cluster-name>  # resource name
+spec:
+  config:
+    openscapReportStorage:
+      accessMode: ReadWriteOnce
+      mountPath: /reports
+      pvcName: compliance-openscap-reports
+      size: 1Gi
+      storageClass: <storage class>  # storage class for storing compliance reports
+  version: v1.1.0
+```
