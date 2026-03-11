@@ -1,0 +1,86 @@
+---
+weight: 31
+---
+
+# Email Notification
+
+Compliance Service supports sending scan reports via email. This feature requires the Alauda Container Platform Cluster Notification plugin to be installed in the workload cluster.
+
+## Prerequisites
+
+- Alauda Container Platform Cluster Notification plugin must be installed in the workload cluster
+
+## Configure Notification Template
+
+Create a NotificationTemplate resource to define the email content:
+
+```yaml
+apiVersion: ait.alauda.io/v1beta1
+kind: NotificationTemplate
+metadata:
+  name: email-compliance-report-template
+  namespace: cpaas-system
+labels:
+  cpaas.io/template.email.body.type: Html
+  cpaas.io/template.language: EN
+spec:
+  templates:
+    - type: Email
+      subject: "Compliance {{ .labels.name }} Report"
+      content: |-
+        The compliance scan has completed. Please download the attached report ZIP file.
+```
+
+Note: 
+- The resource name cannot be customized; Compliance sending reports relies on this name by default
+- The notification template needs to be created in the `cpaas-system` namespace
+
+## Configure Report Recipients
+
+Create a ConfigMap to specify email recipients:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: compliance-mail-recipients
+  namespace: compliance-system
+data:
+  to: example1@alauda.io,example@gmail.com  # Recipient email addresses, separate multiple ones with commas.
+```
+
+Note: 
+- The contact resource must be created under the `compliance-system` namespace
+- The resource name must be consistent with the value of `reportDelivery.email.recipientsRef.name` in the Scan or ScanSuite resources
+
+## Enable Email Notification in Scan/ScanSuite
+
+Add the `reportDelivery` section to your Scan or ScanSuite configuration:
+
+```yaml
+apiVersion: compliance.security.alauda.io/v1alpha1
+kind: ScanSuite
+metadata:
+  name: notify-scan-suite
+  namespace: compliance-system
+spec:
+  profiles:
+    - stig-k8s-v2r3-api-server
+  maxHistoricalResults: 3
+  scanTemplate:
+    scanType: node
+    nodeScopeStrategy: auto
+  reportDelivery:
+    email:
+      enabled: true
+      recipientsRef:
+        name: compliance-mail-recipients
+```
+
+## Best Practices
+
+1. **Scheduled Scanning**: Use the `schedule` parameter to automate regular compliance checks
+2. **Resource Management**: Configure `maxHistoricalResults` to manage storage usage
+3. **Node Targeting**: Use `targetNodeRoles` and `nodeSelector` to focus scans on specific infrastructure components
+4. **Aggregated Mode**: Use aggregated job mode for large clusters to reduce Kubernetes API overhead
+5. **Report Retention**: Regularly export and archive compliance reports for audit purposes

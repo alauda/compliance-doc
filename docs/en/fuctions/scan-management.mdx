@@ -1,0 +1,100 @@
+---
+weight: 28
+---
+
+# Scan Management
+
+ScanSuite is a resource for batch management of compliance scans. It allows you to associate multiple Profiles and schedule automated scans.
+
+## Basic ScanSuite Example
+
+```yaml
+apiVersion: compliance.security.alauda.io/v1alpha1
+kind: ScanSuite
+metadata:
+  name: test-scan-suite
+  namespace: compliance-system
+spec:
+  profiles:
+    - stig-k8s-v2r3-api-server
+    - stig-k8s-v2r3-control-plane
+    - stig-k8s-v2r3-general
+    - stig-k8s-v2r3-kubelet
+  maxHistoricalResults: 3
+  scanTemplate:
+    scanType: node
+    nodeScopeStrategy: auto
+    targetNodeRoles:
+      - control-plane
+    nodeSelector:
+      node-role.kubernetes.io/control-plane: ""
+```
+
+## Scheduled ScanSuite Example
+
+```yaml
+apiVersion: compliance.security.alauda.io/v1alpha1
+kind: ScanSuite
+metadata:
+  name: scheduled-scan-suite
+  namespace: compliance-system
+spec:
+  profiles:
+    - stig-k8s-v2r3-api-server
+    - stig-k8s-v2r3-control-plane
+  schedule: "0 2 * * *"  # Run daily at 2 AM
+  maxHistoricalResults: 3
+  scanTemplate:
+    scanType: node
+    nodeScopeStrategy: auto
+```
+
+## ScanSuite with Email Notification
+
+```yaml
+apiVersion: compliance.security.alauda.io/v1alpha1
+kind: ScanSuite
+metadata:
+  name: notify-scan-suite
+  namespace: compliance-system
+spec:
+  profiles:
+    - stig-k8s-v2r3-api-server
+  maxHistoricalResults: 3
+  scanTemplate:
+    scanType: node
+    nodeScopeStrategy: auto
+  reportDelivery:
+    email:
+      enabled: true
+      recipientsRef:
+        name: compliance-mail-recipients
+```
+
+## Node Scheduling Strategy
+
+The `nodeScopeStrategy` parameter controls how nodes are selected for scanning:
+
+| Strategy | Description |
+|----------|-------------|
+| `auto` | Nodes are automatically selected based on the benchmark rule's `spec.nodeScope`. Kube-bench maps nodes by `benchmark.file.type`. No job is created if there is no match. |
+| `manual` | Run on all matched nodes (ignores rule-specific `nodeScope`). All rules are executed on the specified nodes. |
+
+Important Notes:
+- CIS/STIG baselines have different scheduling rules, so they cannot be scanned together in a single ScanSuite
+- OS/Node scanning requires `scanType: node`
+- CIS only supports `scanType: node`; `platform` and `all` are not supported because kube-bench does not support rule-level node selection
+
+## Monitoring Scan Results
+
+To check the status and results of your compliance scans:
+
+```bash
+# Check scan status and results
+kubectl get scan <scan-name> -n compliance-system -o jsonpath='{.status.phase}{"\t"}{.status.result}'
+```
+
+Example output:
+```
+Done NON-COMPLIANT
+```
