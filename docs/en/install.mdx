@@ -72,11 +72,7 @@ metadata:
     cpaas.io/module-type: plugin
     cpaas.io/product: Platform-Center
   name: compliance-global                    
-spec:
-  config:
-    reportStorage:
-      size: 1Gi                                
-      storageClass: compliance-st               
+spec:         
   version: v0.0.0-beta.6.gd6558326             					
 ```
 
@@ -86,35 +82,4 @@ Field explanations:
 * `label cpaas.io/cluster-name`: Specifies the cluster where the plugin should be installed. 
 * `label cpaas.io/module-name`: Plugin name, must match the ModulePlugin resource.
 * `label cpaas.io/module-type`: Fixed field, must be `plugin`; missing this field causes installation failure.
-* `.spec.config`: If the corresponding ModuleConfig is empty, this field can be left empty.
 * `.spec.version`: Specifies the plugin version to install, must match `.spec.version` in ModuleConfig.
-* `.spec.config.reportStorage.size`: Specifies the storage size for the report storage.
-* `.spec.config.reportStorage.storageClass`: Specifies the storage class for the report storage.
-
-### Installing with YAML
-
-You can also install the plugin by creating a ModuleInfo resource in the Alauda Container Platform global cluster:
-
-```yaml
-apiVersion: cluster.alauda.io/v1alpha1
-kind: ModuleInfo
-metadata:
-  annotations:
-    cpaas.io/display-name: compliance-operator
-    cpaas.io/module-name: '{"en": "Alauda Container Platform Compliance Service", "zh": "Alauda Container Platform Compliance Service"}'
-  labels:
-    cpaas.io/cluster-name: <cluster-name>  # target cluster name
-    cpaas.io/module-name: compliance-operator
-    cpaas.io/module-type: plugin
-    cpaas.io/product: Platform-Center
-  name: compliance-operator-<cluster-name>  # resource name
-spec:
-  config:
-    openscapReportStorage:
-      accessMode: ReadWriteOnce
-      mountPath: /reports
-      pvcName: compliance-openscap-reports
-      size: 1Gi
-      storageClass: <storage class>  # storage class for storing compliance reports
-  version: v1.1.0
-```
