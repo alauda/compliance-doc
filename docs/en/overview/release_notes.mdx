@@ -4,16 +4,13 @@ weight: 40
 
 # Release Notes
 
-## Minor Version: 1.0.6
+## Minor Version: 1.1.0
 
 ### Features and Enhancements
 
-Compliance Service  is now available on Alauda Container Platform 4.1 and later。
+- **CIS Scanning Support**: Added the ability to run CIS (Center for Internet Security) benchmark scan tasks to assess Kubernetes cluster security compliance
+- **Email Notifications**: Implemented email notification feature to automatically send scan results to specified recipients
+- **Rule ID Display**: Enhanced microos scan results to include detailed Rule ID information for better traceability
+- **Taint Tolerance**: Added support for tolerating all taints during microos scanning, allowing scans to run on nodes with any taint configuration
 
-Supports features as below:
 
-- STIG scanning for kubernetes
-- MicroOS OS Scanning
-- Support configuring scheduled scanning tasks
-- The scanning results can be viewed visually
-- The scanning results support storage for long time
