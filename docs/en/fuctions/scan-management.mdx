@@ -116,5 +116,13 @@ To check the status and results of your compliance scans:
 
 ```bash
 # Check scan status and results
-kubectl  get scan -n compliance-system -o wide'
+kubectl  get scan -n compliance-system -o wide
+
+# Return
+NAME                                 PHASE   PROFILE                  TYPE   PAUSED   TOTAL   PASS   FAIL   MANUAL   INFO   ERROR   STARTED   COMPLETED   AGE
+stig-jhchen-stig-k8s-api-server      Done    stig-k8s-api-server                      78      75     0      3               0       67m       66m         67m
+stig-jhchen-stig-k8s-control-plane   Done    stig-k8s-control-plane                   60      42     9      9               0       67m       66m         67m
+stig-jhchen-stig-k8s-general         Done    stig-k8s-general                         74      58     6      10              0       67m       65m         67m
+stig-jhchen-stig-k8s-kubelet         Done    stig-k8s-kubelet                         63      57     0      6               0       67m       66m         67m
 ```
+
