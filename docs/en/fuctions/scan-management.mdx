@@ -71,7 +71,20 @@ spec:
         name: compliance-mail-recipients
 ```
 
-## Node Scheduling Strategy
+## Scan Configuration Parameters
+
+The following table describes the key configuration parameters available for scan profiles:
+
+| Parameter | Type | Scope | Description |
+|-----------|------|-------|-------------|
+| `spec.scanType` | string | k8s,os | Supports `platform`, `node`, and `all`. In platform mode, the system only scans Kubernetes resources. In node mode, the system only scans node files.|
+| `spec.nodeScopeStrategy` | string | k8s | Scanning node selection mode. Supports `auto` and `manual` modes. In auto mode, nodes are selected based on rule-specific scope definitions. In manual mode, all rules are executed on specified nodes. |
+| `spec.targetNodeRoles` | array | k8s, os | Optional. Restricts node roles. Valid values include `control-plane` and `worker`. When configured, participates in node filtering and intersects with nodeScopeStrategy mode. |
+| `spec.nodeSelector` | object | k8s, os | Optional. Uses node labels for selection. When configured, participates in node filtering and intersects with nodeScopeStrategy mode. |
+| `spec.schedule` | string | k8s, os | Optional. Configures scheduled tasks using cron syntax. Example: `"0 2 * * *"` for daily execution at 2 AM. |
+| `spec.maxHistoricalResults` | int | k8s, os | Optional. Number of historical results to retain (default: 5). Example: `2` to keep only the latest 2 results. |
+| `spec.profiles` | array | ScanSuite | Optional. List of profiles to associate with a ScanSuite for batch scanning. |
+| `spec.scanTemplate` | object | ScanSuite | Optional. Template configuration for child Scans in a ScanSuite. |
 
 The `nodeScopeStrategy` parameter controls how nodes are selected for scanning:
 
@@ -85,16 +98,23 @@ Important Notes:
 - OS/Node scanning requires `scanType: node`
 - CIS only supports `scanType: node`; `platform` and `all` are not supported because kube-bench does not support rule-level node selection
 
+## Scan Annotations
+
+The following annotations can be used to control scan behavior:
+
+| Annotation | Scope | Description |
+|------------|-------|-------------|
+| `compliance.security.alauda.io/force-scan: "true"` | k8s, os | Manually triggers immediate scan execution. Automatically resets to false after scan completion. |
+| `compliance.security.alauda.io/force-suite: "true"` | k8s, os | Manually triggers immediate scan suite execution. Automatically resets to false after execution completes. |
+
+
+
+
 ## Monitoring Scan Results
 
 To check the status and results of your compliance scans:
 
 ```bash
 # Check scan status and results
-kubectl get scan <scan-name> -n compliance-system -o jsonpath='{.status.phase}{"\t"}{.status.result}'
-```
-
-Example output:
-```
-Done NON-COMPLIANT
+kubectl  get scan -n compliance-system -o wide'
 ```
