@@ -1,0 +1,47 @@
+---
+weight: 29
+---
+
+# Node Selection and Scheduling
+
+This page explains the shared scheduling and node-selection fields used by `Scan` and `ScanSuite`.
+
+## Where to Configure These Fields
+
+The same scheduling concepts appear in both resources, but the field paths are different:
+
+| Concept | `Scan` Path | `ScanSuite` Path |
+|---------|-------------|------------------|
+| Scan type | `spec.scanType` | `spec.scanTemplate.scanType` |
+| Node scope strategy | `spec.nodeScopeStrategy` | `spec.scanTemplate.nodeScopeStrategy` |
+| Target node roles | `spec.targetNodeRoles` | `spec.scanTemplate.targetNodeRoles` |
+| Node selector | `spec.nodeSelector` | `spec.scanTemplate.nodeSelector` |
+
+## Parameter Behavior
+
+| Parameter | Description |
+|-----------|-------------|
+| `scanType` | Supports `platform`, `node`, and `all`. In platform mode, the system only scans Kubernetes resources. In node mode, the system only scans node files. |
+| `nodeScopeStrategy` | Supports `auto` and `manual`. In auto mode, nodes are selected based on rule-specific scope definitions. In manual mode, all rules are executed on the specified nodes. |
+| `targetNodeRoles` | Optional. Restricts node roles. Valid values include `control-plane` and `worker`. |
+| `nodeSelector` | Optional. Uses node labels for selection. |
+
+## nodeScopeStrategy Behavior
+
+| Strategy | Description |
+|----------|-------------|
+| `auto` | Nodes are automatically selected based on the benchmark rule's `spec.nodeScope`. Kube-bench maps nodes by `benchmark.file.type`. No job is created if there is no match. |
+| `manual` | Run on all matched nodes and ignore rule-specific `nodeScope`. |
+
+## Filtering Rules
+
+When both `targetNodeRoles` and `nodeSelector` are configured, they work together as an intersection during node filtering.
+
+## Profile-Specific Limits
+
+Important Notes:
+
+- OS scanning requires `scanType: node`.
+- CIS only supports `scanType: node`; `platform` and `all` are not supported because kube-bench does not support rule-level node selection.
+- STIG supports `platform`, `node`, and `all`.
+- CIS and STIG baselines have different scheduling rules, so they should not be combined in one `ScanSuite`.

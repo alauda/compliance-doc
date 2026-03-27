@@ -4,16 +4,40 @@ weight: 25
 
 # Quick Start
 
+Use this page to choose the right resource before creating compliance scans.
+
 ## Prerequisites
 
 - Alauda Container Platform version: >= v4.1.0
 - Plugin version: >= v1.1.0
 
-## Quick Scan
+## Choose a Resource
 
-After the plugin is installed, you can quickly create scans using the following templates.
+Use `Scan` when you want to run and manage a single compliance scan for one profile.
 
-### K8S STIG Scan
+Use `ScanSuite` when you want to manage multiple profiles together, schedule recurring runs, or apply one template to a group of child `Scan` resources.
+
+For detailed configuration, see [Using Scan](./using-scan.mdx), [Using ScanSuite](./scan-management.mdx), and [Node Selection and Scheduling](./node-selection-and-scheduling.mdx).
+
+## Quick Examples
+
+### Run a Single Scan
+
+Use `Scan` for one profile at a time.
+
+```yaml
+apiVersion: compliance.security.alauda.io/v1alpha1
+kind: Scan
+metadata:
+  name: os-scan
+  namespace: compliance-system
+spec:
+  profile: stig-os-microos
+```
+
+### Run a ScanSuite
+
+Use `ScanSuite` to create and manage multiple child `Scan` resources together.
 
 ```yaml
 apiVersion: compliance.security.alauda.io/v1alpha1
@@ -29,31 +53,9 @@ spec:
     - stig-k8s-kubelet
 ```
 
-### K8S CIS Scan
+## Next Steps
 
-```yaml
-apiVersion: compliance.security.alauda.io/v1alpha1
-kind: ScanSuite
-metadata:
-  name: cis-scan
-  namespace: compliance-system
-spec:
-  profiles:
-    - cis-k8s-controlplane
-    - cis-k8s-etcd
-    - cis-k8s-master
-    - cis-k8s-node
-    - cis-k8s-policies
-```
-
-### MicroOS STIG Scan
-
-```yaml
-apiVersion: compliance.security.alauda.io/v1alpha1
-kind: Scan
-metadata:
-  name: os-scan
-  namespace: compliance-system
-spec:
-  profile: stig-os-microos
-```
+- Go to [Using Scan](./using-scan.mdx) for single-scan parameters and examples.
+- Go to [Using ScanSuite](./scan-management.mdx) for batch and scheduled scans.
+- Go to [Node Selection and Scheduling](./node-selection-and-scheduling.mdx) for `scanType`, `nodeScopeStrategy`, `targetNodeRoles`, and `nodeSelector`.
+- Go to [Exporting Compliance Reports](./export-reports.mdx) and [Email Notification](./email-notification.mdx) for report delivery workflows.

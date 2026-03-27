@@ -4,19 +4,19 @@ weight: 31
 
 # Email Notification
 
-Compliance Service supports sending scan reports via email. 
+Compliance Service supports sending scan reports via email.
 
 ## Prerequisites
 
 - Use in `global` cluster: You need upgrade Alauda Container Platform to v4.3.0 or later.
 - Use in workload cluster: You need install Alauda Container Platform Cluster Notification plugin.
 - Prepare Email Server configurations:
-  - **`global` cluster**: You need to configure the email server by this document  <ExternalSiteLink name="acp" href="/observability/monitor/functions/manage_notifcation.html#email-server">Email Server Configuration for `global` cluster</ExternalSiteLink>.
+  - **`global` cluster**: You need to configure the email server by this document <ExternalSiteLink name="acp" href="/observability/monitor/functions/manage_notifcation.html#email-server">Email Server Configuration for `global` cluster</ExternalSiteLink>.
   - **workload cluster**: You need to configure the email server by this document <ExternalSiteLink name="acp" href="/configure/notification/cluster_notification.html#email-server" children="Email Server Configuration for workload cluster" />.
 
 ## Configure Notification Template
 
-Create a NotificationTemplate resource to define the email content:
+Create a `NotificationTemplate` resource to define the email content:
 
 ```yaml
 apiVersion: ait.alauda.io/v1beta1
@@ -35,13 +35,14 @@ spec:
         The compliance scan has completed. Please download the attached report ZIP file.
 ```
 
-Note: 
-- The resource name cannot be customized; Compliance sending reports relies on this name by default
-- The notification template needs to be created in the `cpaas-system` namespace
+Note:
+
+- The resource name cannot be customized; Compliance sending reports relies on this name by default.
+- The notification template needs to be created in the `cpaas-system` namespace.
 
 ## Configure Report Recipients
 
-Create a ConfigMap to specify email recipients:
+Create a `ConfigMap` to specify email recipients:
 
 ```yaml
 apiVersion: v1
@@ -50,16 +51,37 @@ metadata:
   name: compliance-mail-recipients
   namespace: compliance-system
 data:
-  to: example1@alauda.io,example@gmail.com  # Recipient email addresses, separate multiple ones with commas.
+  to: example1@alauda.io,example@gmail.com
 ```
 
-Note: 
-- The contact resource must be created under the `compliance-system` namespace
-- The resource name must be consistent with the value of `reportDelivery.email.recipientsRef.name` in the Scan or ScanSuite resources
+Note:
 
-## Enable Email Notification in Scan/ScanSuite
+- The contact resource must be created under the `compliance-system` namespace.
+- The resource name must be consistent with the value of `reportDelivery.email.recipientsRef.name`.
 
-Add the `reportDelivery` section to your Scan or ScanSuite configuration:
+## Enable Email Notification for Scan
+
+Add the `reportDelivery` section directly under `spec` in the `Scan` resource:
+
+```yaml
+apiVersion: compliance.security.alauda.io/v1alpha1
+kind: Scan
+metadata:
+  name: os-scan
+  namespace: compliance-system
+spec:
+  profile: stig-os-microos
+  scanType: node
+  reportDelivery:
+    email:
+      enabled: true
+      recipientsRef:
+        name: compliance-mail-recipients
+```
+
+## Enable Email Notification for ScanSuite
+
+Add the `reportDelivery` section directly under `spec` in the `ScanSuite` resource:
 
 ```yaml
 apiVersion: compliance.security.alauda.io/v1alpha1
@@ -81,10 +103,8 @@ spec:
         name: compliance-mail-recipients
 ```
 
-## Best Practices
+## Resource-Specific Notes
 
-1. **Scheduled Scanning**: Use the `schedule` parameter to automate regular compliance checks
-2. **Resource Management**: Configure `maxHistoricalResults` to manage storage usage
-3. **Node Targeting**: Use `targetNodeRoles` and `nodeSelector` to focus scans on specific infrastructure components
-4. **Aggregated Mode**: Use aggregated job mode for large clusters to reduce Kubernetes API overhead
-5. **Report Retention**: Regularly export and archive compliance reports for audit purposes
+- In `Scan`, `reportDelivery` applies to that single `Scan` resource.
+- In `ScanSuite`, `reportDelivery` applies to the batch resource and its generated reports.
+- For more details, see [Using Scan](./using-scan.mdx) and [Using ScanSuite](./scan-management.mdx).

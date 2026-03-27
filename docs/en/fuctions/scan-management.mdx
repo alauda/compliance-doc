@@ -2,9 +2,20 @@
 weight: 28
 ---
 
-# Scan Management
+# Using ScanSuite
 
-ScanSuite is a resource for batch management of compliance scans. It allows you to associate multiple Profiles and schedule automated scans.
+`ScanSuite` is the resource for batch management of compliance scans. It associates multiple profiles and creates child `Scan` resources from one shared template.
+
+## When to Use ScanSuite
+
+Use `ScanSuite` when you need to:
+
+- manage multiple profiles together
+- schedule recurring compliance scans
+- apply the same scan template to a group of child `Scan` resources
+- pause, resume, or trigger a batch of related scans as one unit
+
+Use [Using Scan](./using-scan.mdx) instead when you only need one profile and one `Scan` resource.
 
 ## Basic ScanSuite Example
 
@@ -42,7 +53,7 @@ spec:
   profiles:
     - stig-k8s-api-server
     - stig-k8s-control-plane
-  schedule: "0 2 * * *"  # Run daily at 2 AM
+  schedule: "0 2 * * *"
   maxHistoricalResults: 3
   scanTemplate:
     scanType: node
@@ -71,58 +82,59 @@ spec:
         name: compliance-mail-recipients
 ```
 
-## Scan Configuration Parameters
+## ScanSuite Parameters
 
-The following table describes the key configuration parameters available for scan profiles:
+The following table describes the top-level parameters of the `ScanSuite` resource:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `spec.profiles` | array | List of profiles associated with the `ScanSuite`. The controller creates child `Scan` resources for these profiles. |
+| `spec.schedule` | string | Optional. Configures scheduled execution using cron syntax. Example: `"0 2 * * *"` for daily execution at 2 AM. If not set, the `ScanSuite` runs only when triggered manually. |
+| `spec.paused` | boolean | Optional. Pauses the `ScanSuite`. Set this field to `true` to stop execution temporarily, and set it back to `false` to resume. |
+| `spec.maxHistoricalResults` | int | Optional. Number of historical results to retain for each child `Scan` (default: `5`). |
+| `spec.scanTemplate` | object | Optional. Template applied to the child `Scan` resources created by the `ScanSuite`. |
+| `spec.reportDelivery` | object | Optional. Delivery configuration for generated reports. Currently email delivery is supported. |
+
+## Scan Template Parameters
+
+The following table describes the parameters available under `spec.scanTemplate`:
 
 | Parameter | Type | Scope | Description |
 |-----------|------|-------|-------------|
-| `spec.scanType` | string | k8s,os | Supports `platform`, `node`, and `all`. In platform mode, the system only scans Kubernetes resources. In node mode, the system only scans node files.|
-| `spec.nodeScopeStrategy` | string | k8s | Scanning node selection mode. Supports `auto` and `manual` modes. In auto mode, nodes are selected based on rule-specific scope definitions. In manual mode, all rules are executed on specified nodes. |
-| `spec.targetNodeRoles` | array | k8s, os | Optional. Restricts node roles. Valid values include `control-plane` and `worker`. When configured, participates in node filtering and intersects with nodeScopeStrategy mode. |
-| `spec.nodeSelector` | object | k8s, os | Optional. Uses node labels for selection. When configured, participates in node filtering and intersects with nodeScopeStrategy mode. |
-| `spec.schedule` | string | k8s, os | Optional. Configures scheduled tasks using cron syntax. Example: `"0 2 * * *"` for daily execution at 2 AM. |
-| `spec.maxHistoricalResults` | int | k8s, os | Optional. Number of historical results to retain (default: 5). Example: `2` to keep only the latest 2 results. |
-| `spec.profiles` | array | ScanSuite | Optional. List of profiles to associate with a ScanSuite for batch scanning. |
-| `spec.scanTemplate` | object | ScanSuite | Optional. Template configuration for child Scans in a ScanSuite. |
+| `spec.scanTemplate.scanType` | string | k8s, os | Supports `platform`, `node`, and `all`. In platform mode, the system only scans Kubernetes resources. In node mode, the system only scans node files. |
+| `spec.scanTemplate.nodeScopeStrategy` | string | k8s | Scanning node selection mode. Supports `auto` and `manual`. In auto mode, nodes are selected based on rule-specific scope definitions. In manual mode, all rules are executed on the specified nodes. |
+| `spec.scanTemplate.targetNodeRoles` | array | k8s, os | Optional. Restricts node roles. Valid values include `control-plane` and `worker`. When configured, it participates in node filtering and intersects with `nodeScopeStrategy`. |
+| `spec.scanTemplate.nodeSelector` | object | k8s, os | Optional. Uses node labels for selection. When configured, it participates in node filtering and intersects with `nodeScopeStrategy`. |
 
-The `nodeScopeStrategy` parameter controls how nodes are selected for scanning:
+For `ScanSuite`, the node selection and scheduling fields are configured under `spec.scanTemplate`, not directly under `spec`.
 
-| Strategy | Description |
-|----------|-------------|
-| `auto` | Nodes are automatically selected based on the benchmark rule's `spec.nodeScope`. Kube-bench maps nodes by `benchmark.file.type`. No job is created if there is no match. |
-| `manual` | Run on all matched nodes (ignores rule-specific `nodeScope`). All rules are executed on the specified nodes. |
+See [Node Selection and Scheduling](./node-selection-and-scheduling.mdx) for the shared behavior and profile-specific limits.
 
-Important Notes:
-- CIS/STIG baselines have different scheduling rules, so they cannot be scanned together in a single ScanSuite
-- OS/Node scanning requires `scanType: node`
-- CIS only supports `scanType: node`; `platform` and `all` are not supported because kube-bench does not support rule-level node selection
+## Report Delivery Parameters
 
-## Scan Annotations
+If `spec.reportDelivery` is configured, the following fields are used for email delivery:
 
-The following annotations can be used to control scan behavior:
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `spec.reportDelivery.email.enabled` | boolean | Enables email delivery for reports generated by the `ScanSuite`. |
+| `spec.reportDelivery.email.recipientsRef.name` | string | Name of the `ConfigMap` that defines the email recipients. |
+
+## ScanSuite Annotations
+
+The following annotation can be used to control `ScanSuite` execution:
 
 | Annotation | Scope | Description |
 |------------|-------|-------------|
-| `compliance.security.alauda.io/force-scan: "true"` | k8s, os | Manually triggers immediate scan execution. Automatically resets to false after scan completion. |
-| `compliance.security.alauda.io/force-suite: "true"`| k8s, os | Manually triggers immediate scansuite execution. Automatically resets to false after scansuite completion. |
+| `compliance.security.alauda.io/force-suite: "true"` | k8s, os | Manually triggers immediate `ScanSuite` execution. Automatically resets to `false` after completion. |
 
+## Monitoring ScanSuite Execution
 
-
-
-## Monitoring Scan Results
-
-To check the status and results of your compliance scans:
+Use `ScanSuite` to inspect the batch resource, and use `Scan` to inspect the child executions created from it.
 
 ```bash
-# Check scan status and results
-kubectl  get scan -n compliance-system -o wide
+# Check ScanSuite status
+kubectl get scansuite test-scan-suite -n compliance-system -o yaml
 
-# Return
-NAME                                 PHASE   PROFILE                  TYPE   PAUSED   TOTAL   PASS   FAIL   MANUAL   INFO   ERROR   STARTED   COMPLETED   AGE
-stig-jhchen-stig-k8s-api-server      Done    stig-k8s-api-server                      78      75     0      3               0       67m       66m         67m
-stig-jhchen-stig-k8s-control-plane   Done    stig-k8s-control-plane                   60      42     9      9               0       67m       66m         67m
-stig-jhchen-stig-k8s-general         Done    stig-k8s-general                         74      58     6      10              0       67m       65m         67m
-stig-jhchen-stig-k8s-kubelet         Done    stig-k8s-kubelet                         63      57     0      6               0       67m       66m         67m
+# Check child Scans created by the ScanSuite
+kubectl get scan -n compliance-system -o wide
 ```
-
