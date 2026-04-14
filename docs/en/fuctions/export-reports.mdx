@@ -15,7 +15,7 @@ Compliance Service exports reports in ZIP format, including HTML, CSV, Excel fil
 NS=compliance-system
 SCAN=os-scan
 
-kubectl create --raw "/apis/reports.compliance.security.alauda.io/v1alpha1/scans/${NS}/${SCAN}/export/zip" -f - <<< '{}' > ${SCAN}.zip
+kubectl create --raw "/apis/reports.compliance.security.alauda.io/v1alpha1/namespaces/${NS}/scans/${SCAN}/export/zip" -f - <<< '{}' > ${SCAN}.zip
 ```
 
 The `Scan` ZIP file contains:
@@ -36,7 +36,7 @@ NS=compliance-system
 SCAN=os-scan
 SCANID=be4637ee-8d06-4aaf-9f5b-ca315475599d
 
-kubectl create --raw "/apis/reports.compliance.security.alauda.io/v1alpha1/scans/${NS}/${SCAN}/export/zip?scanID=${SCANID}" -f - <<< '{}' > ${SCAN}-${SCANID}.zip
+kubectl create --raw "/apis/reports.compliance.security.alauda.io/v1alpha1/namespaces/${NS}/scans/${SCAN}/export/zip?scanID=${SCANID}" -f - <<< '{}' > ${SCAN}-${SCANID}.zip
 ```
 
 ## Export Reports for ScanSuite
@@ -48,7 +48,7 @@ kubectl create --raw "/apis/reports.compliance.security.alauda.io/v1alpha1/scans
 NS=compliance-system
 SUITE=test-scan
 
-kubectl create --raw "/apis/reports.compliance.security.alauda.io/v1alpha1/scansuites/${NS}/${SUITE}/export/zip" -f - <<< '{}' > ${SUITE}.zip
+kubectl create --raw "/apis/reports.compliance.security.alauda.io/v1alpha1/namespaces/${NS}/scansuites/${SUITE}/export/zip" -f - <<< '{}' > ${SUITE}.zip
 ```
 
 The `ScanSuite` ZIP file contains aggregated CSV and Excel outputs, metadata, and each child `Scan` report.
@@ -64,7 +64,7 @@ NS=compliance-system
 SUITE=test-scan
 RUNID=20260106-035650-004246
 
-kubectl create --raw "/apis/reports.compliance.security.alauda.io/v1alpha1/scansuites/${NS}/${SUITE}/export/zip?runID=${RUNID}" -f - <<< '{}' > ${SUITE}-${RUNID}.zip
+kubectl create --raw "/apis/reports.compliance.security.alauda.io/v1alpha1/namespaces/${NS}/scansuites/${SUITE}/export/zip?runID=${RUNID}" -f - <<< '{}' > ${SUITE}-${RUNID}.zip
 ```
 
 ## Export Reports with CURL
@@ -85,7 +85,7 @@ curl -k -X POST \
   -H "Content-Type: application/json" \
   -d '{}' \
   --output "${SCAN}-${SCANID}.zip" \
-  "${APISERVER}/apis/reports.compliance.security.alauda.io/v1alpha1/scans/${NS}/${SCAN}/export/zip?scanID=${SCANID}"
+  "${APISERVER}/apis/reports.compliance.security.alauda.io/v1alpha1/namespaces/${NS}/scans/${SCAN}/export/zip?scanID=${SCANID}"
 ```
 
 ### Export a ScanSuite Report with CURL
@@ -101,10 +101,11 @@ curl -k -X POST \
   -H "Content-Type: application/json" \
   -d '{}' \
   --output "${SUITE}.zip" \
-  "${APISERVER}/apis/reports.compliance.security.alauda.io/v1alpha1/scansuites/${NS}/${SUITE}/export/zip"
+  "${APISERVER}/apis/reports.compliance.security.alauda.io/v1alpha1/namespaces/${NS}/scansuites/${SUITE}/export/zip"
 ```
 
 Note:
 
 - The `-d '{}'` is required because the API expects a POST body.
 - Use `--output <file>` to save the binary ZIP and avoid terminal noise.
+- Legacy URL patterns are still supported for backward compatibility, but the `namespaces/{ns}/...` pattern is recommended for all new scripts and examples.
