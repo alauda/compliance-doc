@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "generator_version": 3,
+  "project_name": "Compliance Service",
+  "summary": "Documentation for the Compliance Service module, supporting STIG compliance scanning and MicroOS operating system scanning.",
+  "generated_at": "2026-05-16T07:37:21Z",
+  "include_patterns": [
+    "docs/**/*.md",
+    "docs/**/*.mdx"
+  ],
+  "exclude_patterns": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/llms.txt",
+    "**/CHANGELOG.md",
+    "**/CONTRIBUTING.md",
+    "**/shared/**",
+    "**/public/**",
+    ".llmstxt-cache/**",
+    "**/.llmstxt-cache/**",
+    "llms.txt",
+    "llmstxt-state.json",
+    "**/llmstxt-state.json"
+  ],
+  "grouping_base_path": "docs",
+  "description_max_words": 150,
+  "files": {
+    "docs/en/fuctions/email-notification.mdx": {
+      "sha256": "4882d2d60757077dd8eb85dc0603911c527732aa05828574182f0fc51dc5defc",
+      "size": 3242,
+      "description": "Configures email delivery of Compliance Service scan reports by creating a `NotificationTemplate` (named `email-compliance-report-template` in the `cpaas-system` namespace) and a `compliance-mail-recipients` ConfigMap, then enabling `spec.reportDelivery.email` on `Scan` or `ScanSuite` resources. Covers prerequisites for `global` versus workload clusters (ACP v4.3.0+ or the Cluster Notification plugin) and the YAML required for ait.alauda.io NotificationTemplate setup.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/fuctions/export-reports.mdx": {
+      "sha256": "88d54e3bbe32479bada43b472027450fd044fcc085788426cbfd94799d2d2781",
+      "size": 3304,
+      "description": "Explains how to export Compliance Service reports as ZIP archives containing `report.html`, `report.xls`, `report.csv`, and `metadata.txt` for `Scan` resources, and aggregated bundles for `ScanSuite`. Provides `kubectl create --raw` and `curl` recipes against the `reports.compliance.security.alauda.io/v1alpha1` API for both latest and historical exports keyed by `scanID` or `runID`, with bearer-token authentication examples.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/fuctions/index.mdx": {
+      "sha256": "1e4c1af4b96a0faca26ba67d5c7e52c125f453c213127ff5b422dc802f867644",
+      "size": 63,
+      "description": "Landing page for the Compliance Service Guides section, rendered via the `<Overview>` component to list child function topics (quick start, using Scan, using ScanSuite, node selection, exporting reports, and email notifications). Carries weight 20 in the navigation.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/fuctions/node-selection-and-scheduling.mdx": {
+      "sha256": "8e266b8eb094d4aa09d8f8c43a94a5fbeb251b673e99aa879c6aa02b5198b82a",
+      "size": 2170,
+      "description": "Reference for the shared node-targeting fields used by `Scan` (under `spec`) and `ScanSuite` (under `spec.scanTemplate`): `scanType` (`platform`/`node`/`all`), `nodeScopeStrategy` (`auto` versus `manual` for kube-bench rule scope), `targetNodeRoles`, and `nodeSelector`. Documents how filters intersect and profile-specific constraints — OS and CIS require `scanType: node` while STIG accepts all three modes, and CIS/STIG should not be mixed in one ScanSuite.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/fuctions/quick-start.mdx": {
+      "sha256": "204929d412b3c8701e3e4e7325fa1347ac235eea93f998eca19e7e22495ef97f",
+      "size": 1726,
+      "description": "Quick-start guide for choosing between `Scan` (single profile) and `ScanSuite` (multiple profiles, recurring schedules, shared template) on Alauda Container Platform v4.1.0+ with plugin v1.1.0+. Includes minimal YAML examples for an `os-scan` Scan using `stig-os-microos` and a `stig-scan` ScanSuite covering several `stig-k8s-*` profiles, with links to detailed configuration pages.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/fuctions/scan-management.mdx": {
+      "sha256": "30de40ddb61a495589a930cc741267ed7aa4baa5636483c518e9d3a603050efc",
+      "size": 5387,
+      "description": "Reference for the `ScanSuite` CRD (`compliance.security.alauda.io/v1alpha1`) used for batch compliance scans across multiple profiles. Describes `spec.profiles`, cron `spec.schedule`, `spec.paused`, `spec.maxHistoricalResults`, the `spec.scanTemplate` (scanType, nodeScopeStrategy, targetNodeRoles, nodeSelector), `spec.reportDelivery.email` for ConfigMap-based recipients, and the `compliance.security.alauda.io/force-suite` annotation to trigger immediate execution.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/fuctions/using-scan.mdx": {
+      "sha256": "4ca63d3a927c747cf7cf78ee59c48b32ea2fac56ca37ad89e1a160dd22d7ad58",
+      "size": 3872,
+      "description": "Reference for the single-profile `Scan` CRD (`compliance.security.alauda.io/v1alpha1`), detailing `spec.profile`, `spec.scanType`, `spec.nodeScopeStrategy`, `spec.targetNodeRoles`, `spec.nodeSelector`, `spec.maxHistoricalResults`, and `spec.reportDelivery`. Includes basic CIS control-plane and `stig-os-microos` OS scan examples, the `compliance.security.alauda.io/force-scan` trigger annotation, and `kubectl` commands to inspect scan status.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/index.mdx": {
+      "sha256": "ea8d719fb06b69c8f8fa90c79d3ec2a67457c854f2c664fb78f523febe3f6960",
+      "size": 48,
+      "description": "Top-level navigation entry point for the Compliance Service English documentation, rendering the `<Overview>` component with an empty `overviewHeaders` list to surface child sections (overview, install, functions).",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/install.mdx": {
+      "sha256": "c792ff18ba59f7f3636d73efc3752d26e9a0fa163d1e3f08bbeb242e7f4f586f",
+      "size": 2769,
+      "description": "Installation guide for the Compliance Service plugin (`compliance-operator`), covering downloading the package from the Custom Portal, importing it with `violet push`, and verifying upload through Administrator > Marketplace. Provides both the web console install flow and a CLI procedure using `ModulePlugin`/`ModuleConfig` lookups and a `ModuleInfo` resource with `cluster.alauda.io/v1alpha1` labels (cpaas.io/cluster-name, module-name, module-type) targeting the `global` cluster.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/overview/architecture.mdx": {
+      "sha256": "fc5dc47531f15886f790aa1cd8bca76dd32c69e064febd5357a8e847afe5ef8c",
+      "size": 6466,
+      "description": "Architectural breakdown of Compliance Service — a Kubernetes-based STIG/CIS compliance tool inspired by the OpenShift compliance-operator. Includes Mermaid diagrams of the User, Control (Manager/Scan/Report controllers), Execution (Unified Scanner, OpenSCAP Scanner, Report Service), Storage (CheckResults, ConfigMaps), and Scanning Resources (Jobs, Pods) layers, plus a 10-step sequence diagram describing reconciliation from `Scan` creation through CheckResult collection and cleanup.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/overview/index.mdx": {
+      "sha256": "f2173503b518976d2ce0b364648e0aec87c10f0ae2f33957a7f310f0521283fd",
+      "size": 44,
+      "description": "Overview section landing page rendered via the `<Overview />` component, acting as the parent navigation index for intro, architecture, and release notes child pages.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/overview/intro.mdx": {
+      "sha256": "6b7db2b7f4675dee29587e65a3e3e191de2389a2082ceea408f99f551df41357",
+      "size": 1258,
+      "description": "Introduces Compliance Service as a platform module for STIG compliance scanning and MicroOS operating-system scanning, with scheduled scans and reporting. Frames the problems it addresses (manual compliance overhead, regulatory gaps, inconsistent assessments, reactive security) and target scenarios including government/defense STIG verification, enterprise baseline audits, MicroOS/container compliance, and DevSecOps pipeline integration.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    },
+    "docs/en/overview/release_notes.mdx": {
+      "sha256": "cfb51e1f4aee95f973e3ba588ea3d1b56951590acf5c88aa8570c3581365eb11",
+      "size": 860,
+      "description": "Release notes for Compliance Service v1.1.0, listing CIS benchmark scanning support, email notifications for scan results, Rule ID display in microos scan results, and tolerating all node taints during microos scans. Includes a warning that v1.1.0 has breaking API changes from v1.0 and requires uninstalling the old version before installing — direct upgrades are not supported.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T07:37:21Z"
+    }
+  }
+}

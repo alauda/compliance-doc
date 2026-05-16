@@ -1,0 +1,21 @@
+# llms.txt Generator Configuration for alauda/compliance-doc
+# Pure-docs repo — Compliance Service documentation
+
+project_name: "Compliance Service"
+summary: "Documentation for the Compliance Service module, supporting STIG compliance scanning and MicroOS operating system scanning."
+
+include_patterns:
+  - "docs/**/*.md"
+  - "docs/**/*.mdx"
+
+exclude_patterns:
+  - "**/node_modules/**"
+  - "**/.git/**"
+  - "**/llms.txt"
+  - "**/CHANGELOG.md"
+  - "**/CONTRIBUTING.md"
+  - "**/shared/**"
+  - "**/public/**"
+
+batch_size: 15
+grouping_base_path: "docs"
