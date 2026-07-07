@@ -70,7 +70,7 @@ metadata:
   name: os-scan
   namespace: compliance-system
 spec:
-  profile: stig-os-microos
+  profile: stig-os-example
   scanType: node
   reportDelivery:
     email:
@@ -78,6 +78,8 @@ spec:
       recipientsRef:
         name: compliance-mail-recipients
 ```
+
+Note: `stig-os-example` is an example profile name. Use the profile names actually available in your cluster.
 
 ## Enable Email Notification for ScanSuite
 

@@ -13,7 +13,7 @@ Use `Scan` when you need to:
 - run one profile by itself
 - validate one target quickly without creating a batch resource
 - manage execution directly for a single compliance baseline
-- run a standalone OS scan such as `stig-os-microos`
+- run a standalone OS scan such as `stig-os-example`
 
 Use [Using ScanSuite](./scan-management.mdx) instead when you need to manage multiple profiles together or schedule repeated runs.
 
@@ -43,9 +43,11 @@ metadata:
   name: os-scan
   namespace: compliance-system
 spec:
-  profile: stig-os-microos
+  profile: stig-os-example
   scanType: node
 ```
+
+Note: `stig-os-example` is an example profile name. Use the profile names actually available in your cluster.
 
 ## Scan Parameters
 
