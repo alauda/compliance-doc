@@ -6,11 +6,11 @@ weight: 20
 
 ## Overview
 
-Compliance Service provides comprehensive security compliance scanning capabilities for Kubernetes clusters and MicroOS systems. This guide demonstrates how to create scan profiles, monitor scan results, and export compliance reports.
+Compliance Service provides comprehensive security compliance scanning capabilities for Kubernetes clusters and OS systems. This guide demonstrates how to create scan profiles, monitor scan results, and export compliance reports.
 
 ## Creating Scan Profiles
 
-Scan profiles define the scope and configuration of compliance scanning operations. The Compliance Service supports both STIG (Security Technical Implementation Guide) profiles for Kubernetes and MicroOS environments.
+Scan profiles define the scope and configuration of compliance scanning operations. The Compliance Service supports both STIG (Security Technical Implementation Guide) profiles for Kubernetes and OS environments.
 
 ### STIG Kubernetes Profiles
 
@@ -90,20 +90,22 @@ spec:
   profile: stig-k8s-v2r2-kubelet
 ```
 
-### MicroOS Scan Profile
+### OS Scan Profile
 
-For MicroOS operating system compliance scanning:
+For operating system compliance scanning:
 
 ```yaml
 apiVersion: compliance-operator.alauda.io/v1alpha1
 kind: Scan
 metadata:
-  name: scan-stig-os-microos
+  name: scan-stig-os-example
   namespace: compliance-system
 spec:
-  profile: stig-os-microos
+  profile: stig-os-example
   scanType: node
 ```
+
+Note: `stig-os-example` is an example profile name. Use the profile names actually available in your cluster.
 
 ## Scan Configuration Parameters
 
@@ -158,11 +160,11 @@ SCAN_NAME="<scan-name>" && \
 kubectl get cm $(kubectl get scan $SCAN_NAME -n compliance-system -o jsonpath='{.status.latestResult.reportName}') -n compliance-system -o jsonpath='{.data.report\.html}' > report-$SCAN_NAME.html
 ```
 
-#### MicroOS Report Export
+#### OS Report Export
 
 ```bash
-# Export MicroOS report
-SCAN_NAME="scan-stig-os-microos" && \
+# Export OS report
+SCAN_NAME="scan-stig-os-example" && \
 kubectl get scan $SCAN_NAME -n compliance-system -o jsonpath='{.status.latestResult.scanID}' | \
 xargs -I {} kubectl cp compliance-system/$(kubectl get pods -n compliance-system -l app=openscap-report-service -o jsonpath='{.items[0].metadata.name}'):/reports/{} ./reports-{}
 ```
@@ -178,7 +180,7 @@ kubectl get checkresult -A
 # Export historical STIG report
 CHECKRESULT_NAME="<checkresult-name>" && kubectl get cm -n compliance-system -l "compliance-operator.alauda.io/scan-id=$(kubectl get checkresult $CHECKRESULT_NAME -n compliance-system -o jsonpath='{.metadata.labels.compliance-operator\.alauda\.io/scan-id}'),compliance-operator.alauda.io/resource-type=report" -o jsonpath='{.items[0].data.report\.html}' > report-$CHECKRESULT_NAME.html
 
-# Export historical MicroOS report
+# Export historical OS report
 CHECKRESULT_NAME="<checkresult-name>" && kubectl cp compliance-system/$(kubectl get pods -n compliance-system -l app=openscap-report-service -o jsonpath='{.items[0].metadata.name}'):/reports/$(kubectl get checkresult $CHECKRESULT_NAME -n compliance-system -o jsonpath='{.metadata.labels.compliance-operator\.alauda\.io/scan-id}') ./reports-$(kubectl get checkresult $CHECKRESULT_NAME -n compliance-system -o jsonpath='{.metadata.labels.compliance-operator\.alauda\.io/scan-id}')
 ```
 
