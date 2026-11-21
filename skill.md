@@ -24,7 +24,6 @@
 │   ├── shared/             # 共享资源
 │   └── i18n.json
 ├── package.json
-├── sites.yaml
 └── README.md
 ```
 
