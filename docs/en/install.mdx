@@ -6,14 +6,14 @@ weight: 15
 
 ## Installing Compliance Service
 
-### Download and Import the Plugin
+### Download and Import the Cluster Plugin
 
-1、Download the plugin package:
+1、Download the Cluster Plugin package:
 
-- Visit the Custom Portal to download the corresponding plugin package.
--If you don't have access to the Custom Portal, contact technical support.
+- Visit the Customer Portal to download the corresponding Cluster Plugin package.
+-If you don't have access to the Customer Portal, contact technical support.
 
-2、Import the plugin:
+2、Import the Cluster Plugin:
 
 ```bash
 violet push compliance-service-vx.x.x-hybrid.tgz --platform-address https://192.168.0.1 --platform-username <user> --platform-password <password>
@@ -25,19 +25,19 @@ violet push compliance-service-vx.x.x-hybrid.tgz --platform-address https://192.
 
 - Navigate to Administrator > Marketplace > Upload Packages
 - Switch to the Cluster Plugin tab
-- Locate the uploaded plugin name
-- The plugin details will show the version(s) of the uploaded package
+- Locate the uploaded Cluster Plugin name
+- The Cluster Plugin details will show the version(s) of the uploaded package
 
-2、Install the plugin:
+2、Install the Cluster Plugin:
 
-- If the plugin shows a "ready" status, click Install
+- If the Cluster Plugin shows a "ready" status, click Install
 
 
 ### Installing Compliance service using CLI
 
 1. Check available versions
 
-Ensure the plugin has been published by checking for ModulePlugin and ModuleConfig resources, in `global` cluster :
+Ensure the Cluster Plugin has been published by checking for ModulePlugin and ModuleConfig resources, in `global` cluster :
 
 ```shell
 # kubectl get moduleplugins |grep compliance
@@ -53,7 +53,7 @@ This indicates that the ModulePlugin `compliance-operator ` exists in the cluste
 
 2. Create a ModuleInfo
 
-Create a ModuleInfo resource to install the plugin without any configuration parameters:
+Create a ModuleInfo resource to install the Cluster Plugin without any configuration parameters:
 
 ```yaml
 apiVersion: cluster.alauda.io/v1alpha1
@@ -79,11 +79,11 @@ spec:
 
 Field explanations:
 
-* `name`: Temporary name for the cluster plugin. The platform will rename it after creation based on the content, in the format `<cluster-name>-<hash of content>`, e.g., `global-ee98c9991ea1464aaa8054bdacbab313`.
-* `label cpaas.io/cluster-name`: Specifies the cluster where the plugin should be installed. 
-* `label cpaas.io/module-name`: Plugin name, must match the ModulePlugin resource.
+* `name`: Temporary name for the Cluster Plugin. The platform will rename it after creation based on the content, in the format `<cluster-name>-<hash of content>`, e.g., `global-ee98c9991ea1464aaa8054bdacbab313`.
+* `label cpaas.io/cluster-name`: Specifies the cluster where the Cluster Plugin should be installed. 
+* `label cpaas.io/module-name`: Cluster Plugin name, must match the ModulePlugin resource.
 * `label cpaas.io/module-type`: Fixed field, must be `plugin`; missing this field causes installation failure.
 * `.spec.config`: If the corresponding ModuleConfig is empty, this field can be left empty.
-* `.spec.version`: Specifies the plugin version to install, must match `.spec.version` in ModuleConfig.
+* `.spec.version`: Specifies the Cluster Plugin version to install, must match `.spec.version` in ModuleConfig.
 * `.spec.config.reportStorage.size`: Specifies the storage size for the report storage.
 * `.spec.config.reportStorage.storageClass`: Specifies the storage class for the report storage.
