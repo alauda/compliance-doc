@@ -82,11 +82,11 @@
       "updated_at": "2026-05-16T07:37:21Z"
     },
     "docs/en/install.mdx": {
-      "sha256": "c792ff18ba59f7f3636d73efc3752d26e9a0fa163d1e3f08bbeb242e7f4f586f",
-      "size": 2769,
-      "description": "Installation guide for the Compliance Service plugin (`compliance-operator`), covering downloading the package from the Custom Portal, importing it with `violet push`, and verifying upload through Administrator > Marketplace. Provides both the web console install flow and a CLI procedure using `ModulePlugin`/`ModuleConfig` lookups and a `ModuleInfo` resource with `cluster.alauda.io/v1alpha1` labels (cpaas.io/cluster-name, module-name, module-type) targeting the `global` cluster.",
+      "sha256": "107c01386cbd1f5f257cd9b94b8bf0a42662c594e29df3ecf732fcf8d29ad64c",
+      "size": 2877,
+      "description": "Installation guide for the Compliance Service Cluster Plugin (`compliance-operator`), covering downloading the package from the Customer Portal, importing it with `violet push`, and verifying upload through Administrator > Marketplace. Provides both the web console install flow and a CLI procedure using `ModulePlugin`/`ModuleConfig` lookups and a `ModuleInfo` resource with `cluster.alauda.io/v1alpha1` labels (cpaas.io/cluster-name, module-name, module-type) targeting the `global` cluster.",
       "generation_method": "ai_agent_reading",
-      "updated_at": "2026-05-16T07:37:21Z"
+      "updated_at": "2026-11-23T19:51:57Z"
     },
     "docs/en/overview/architecture.mdx": {
       "sha256": "fc5dc47531f15886f790aa1cd8bca76dd32c69e064febd5357a8e847afe5ef8c",
